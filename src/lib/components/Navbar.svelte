@@ -1,29 +1,62 @@
 <script lang="ts">
   import { page } from "$app/stores";
+  import Close from "$lib/components/Icon/Close.svelte";
+  import Hamburger from "$lib/components/Icon/Hamburger.svelte";
+
+  let isNavShowing: boolean = false;
 </script>
 
-<header class="col-span-3 bg-daisyBush text-center">
-  <div>
+<svelte:head>
+  {#if isNavShowing}
+    <style lang="postcss">
+      body {
+        @apply overflow-hidden md:overflow-auto;
+      }
+    </style>
+  {/if}
+</svelte:head>
+
+<!-- * Mobile Nav Control -->
+<button
+    class="fixed right-6 top-6 z-navbarToggle md:hidden"
+    class:text-goldenFizz={isNavShowing}
+    class:text-daisyBush={!isNavShowing}
+    on:click={() => isNavShowing = !isNavShowing}>
+  {#if isNavShowing}
+    <Close
+        height={32}
+        width={32} />
+  {:else}
+    <Hamburger
+        height={32}
+        width={32} />
+  {/if}
+</button>
+
+<header
+    class="fixed transition-transform z-navBar w-full h-screen md:h-full -translate-x-full bg-daisyBush text-center md:relative md:col-span-3 md:translate-x-0"
+    class:translate-x-0={isNavShowing}>
+  <div class="mt-10 mb-10 md:mb-24">
     <a href="/invoices">
       <img
           src="/images/logo.svg"
           alt="The Dollar Holler"
           class="mx-auto">
     </a>
-
-    <nav>
-      <ul class="list-none text-2xl font-bold">
-        <li><a
-            href="/invoices"
-            class:active={$page.url.pathname === "/invoices"}>Invoices</a></li>
-        <li><a
-            href="/clients"
-            class:active={$page.url.pathname === "/clients"}>Clients</a></li>
-        <li><a href="#">Settings</a></li>
-        <li><a href="#">Logout</a></li>
-      </ul>
-    </nav>
   </div>
+
+  <nav>
+    <ul class="list-none text-2xl font-bold">
+      <li><a
+          href="/invoices"
+          class:active={$page.url.pathname === "/invoices"}>Invoices</a></li>
+      <li><a
+          href="/clients"
+          class:active={$page.url.pathname === "/clients"}>Clients</a></li>
+      <li><a href="#">Settings</a></li>
+      <li><a href="#">Logout</a></li>
+    </ul>
+  </nav>
 </header>
 
 <style lang="postcss">

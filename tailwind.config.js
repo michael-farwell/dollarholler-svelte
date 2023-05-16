@@ -24,6 +24,10 @@ export default {
         gallery: "#efeaf2",
         fog: "#decaec",
       },
+      zIndex: {
+        navbarToggle: 91,
+        navBar: 90,
+      }
     },
   },
   plugins: [],
