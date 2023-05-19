@@ -1,5 +1,3 @@
-import type { InvoiceStatus, ClientStatus } from "./enums";
-
 interface Invoice {
   client: Client;
   createdAt: string;
