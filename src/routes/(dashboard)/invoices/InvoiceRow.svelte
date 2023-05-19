@@ -2,6 +2,7 @@
   import ThreeDots from "$lib/components/Icon/ThreeDots.svelte";
   import View from "$lib/components/Icon/View.svelte";
   import Tag from "$lib/components/Tag.svelte";
+  import { centsToDollars, sumLineItems } from "$lib/utils/moneyHelpers";
 
   export let invoice: Invoice;
 </script>
@@ -14,16 +15,20 @@
   </div>
   <div class="text-sm lg:text-lg dueDate">{invoice.dueDate}</div>
   <div class="text-sm lg:text-lg invoiceNumber">{invoice.invoiceNumber}</div>
-  <div class="text-base lg:text-xl font-bold clientName">{invoice.client.name}</div>
-  <div class="text-sm lg:text-lg font-mono font-bold amount text-right">$504.00</div>
-  <div class="moreButton hidden text-sm lg:block lg:text-lg lg:center">
+  <div class="text-base lg:text-xl font-bold clientName whitespace-nowrap truncate">
+    {invoice.client.name}
+  </div>
+  <div class="text-sm lg:text-lg font-mono font-bold amount text-right">
+    ${centsToDollars(sumLineItems(invoice.lineItems))}
+  </div>
+  <div class="viewButton hidden text-sm lg:block lg:text-lg lg:center">
     <a
         href="#"
         class="text-pastelPurple hover:text-daisyBush">
       <View />
     </a>
   </div>
-  <div class="viewButton hidden text-sm lg:block lg:text-lg lg:center">
+  <div class="moreButton hidden text-sm lg:block lg:text-lg lg:center">
     <button class="text-pastelPurple hover:text-daisyBush">
       <ThreeDots />
     </button>
