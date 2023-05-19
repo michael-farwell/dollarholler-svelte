@@ -111,7 +111,7 @@
         "zip": "56789"
       },
       "createdAt": "2022-07-01",
-      "dueDate": "2022-6-06",
+      "dueDate": "2022-06-06",
       "id": "7",
       "invoiceNumber": "12347",
       "invoiceStatus": "sent",
@@ -137,7 +137,7 @@
         "zip": "56789"
       },
       "createdAt": "2022-07-06",
-      "dueDate": "2022-10-06",
+      "dueDate": "2023-10-06",
       "id": "5",
       "invoiceNumber": "12348",
       "invoiceStatus": "sent",
