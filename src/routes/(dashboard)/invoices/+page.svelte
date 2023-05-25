@@ -41,9 +41,11 @@
   </div>
 
   <!--  Invoices -->
-  {#each $invoices as invoice}
-    <InvoiceRow {invoice} />
-  {/each}
+  <div class="flex flex-col-reverse">
+    {#each $invoices as invoice}
+      <InvoiceRow {invoice} />
+    {/each}
+  </div>
 </div>
 
 <CircledAmount
