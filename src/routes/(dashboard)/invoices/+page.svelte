@@ -1,6 +1,6 @@
 <script lang="ts">
+  import Button from "$lib/components/Button.svelte";
   import CircledAmount from "$lib/components/CircledAmount.svelte";
-  import Portal from "$lib/components/Portal.svelte";
   import Search from "$lib/components/Search.svelte";
   import { invoices, loadInvoices } from "$lib/stores/InvoiceStore";
   import { asCurrency, sumInvoices } from "$lib/utils/moneyHelpers";
@@ -9,9 +9,7 @@
   import InvoiceRow from "./InvoiceRow.svelte";
   import InvoiceRowHeader from "./InvoiceRowHeader.svelte";
 
-  onMount(() => {
-    loadInvoices();
-  });
+  onMount(() => loadInvoices());
 </script>
 
 <svelte:head>
@@ -28,16 +26,14 @@
 
   <!--  New Invoice Button -->
   <div>
-    <button class="relative whitespace-nowrap rounded-lg bg-lavenderIndigo text-base px-5 py-2 lg:px-10 lg:py-3 font-sansSerif lg:text-xl font-black text-white shadow-colored hover:shadow-coloredHover translate-y-0 hover:-translate-y-2 transition-all">
-      + Invoice
-    </button>
+    <Button
+        label="+ Invoice"
+        onClick={() => {}} />
   </div>
 </div>
 
 <!-- List of Invoices -->
 <div>
-  <Portal><div>Invoice Form</div></Portal>
-
   <!--  Invoices -->
   {#if $invoices === null}
     Loading..
