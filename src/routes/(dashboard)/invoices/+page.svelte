@@ -1,5 +1,6 @@
 <script lang="ts">
   import CircledAmount from "$lib/components/CircledAmount.svelte";
+  import Portal from "$lib/components/Portal.svelte";
   import Search from "$lib/components/Search.svelte";
   import { invoices, loadInvoices } from "$lib/stores/InvoiceStore";
   import { asCurrency, sumInvoices } from "$lib/utils/moneyHelpers";
@@ -19,7 +20,7 @@
 
 <div class="flex flex-col-reverse md:flex-row justify-between items-start md:items-center gap-y-6 md:gap-y-4 mb-7 lg:mb-16">
   <!--  Search Field -->
-  {#if $invoices.length > 0}\
+  {#if $invoices.length > 0}
     <Search />
   {:else}
     <div></div>
@@ -35,6 +36,8 @@
 
 <!-- List of Invoices -->
 <div>
+  <Portal><div>Invoice Form</div></Portal>
+
   <!--  Invoices -->
   {#if $invoices === null}
     Loading..
