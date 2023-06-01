@@ -7,12 +7,12 @@
   export let lineItem: LineItem;
   export let canDelete: boolean = false;
 
-  let unitPrice: string = twoDecimals(lineItem.amount / lineItem.quantity);
+  let unitPrice: string = twoDecimals(lineItem?.amount / lineItem?.quantity);
   let amount: string;
 
   $: {
-    amount = twoDecimals(lineItem.quantity * +unitPrice);
-    lineItem.amount = dollarsToCents(+amount);
+    amount = twoDecimals(lineItem?.quantity * +unitPrice);
+    if (lineItem) lineItem.amount = dollarsToCents(+amount);
   }
 
   const dispatch = createEventDispatcher();
