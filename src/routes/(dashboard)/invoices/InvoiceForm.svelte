@@ -2,15 +2,20 @@
   import Button from "$lib/components/Button.svelte";
   import Trash from "$lib/components/Icon/Trash.svelte";
   import LineItemRows from "./LineItemRows.svelte";
+  import { v4 as uuid } from "uuid";
 
-  const blankLineItem: LineItem[] = [
-    {
-      id: "1",
-      description: "",
-      quantity: 0,
-      amount: 0,
-    },
+  const blankLineItem: LineItem = {
+    id: uuid(),
+    description: "",
+    quantity: 0,
+    amount: 0,
+  };
+  let lineItems: LineItem[] = [
+    { ...blankLineItem },
   ];
+
+  const addLineItem = () => lineItems = [...lineItems, { ...blankLineItem, id: uuid() }];
+  const removeLineItem = (e: CustomEvent) => lineItems = lineItems.filter(x => x.id !== e.detail);
 </script>
 
 <h2 class="mb-7 font-sansSerif text-3xl font-bold text-daisyBush">
@@ -71,7 +76,10 @@
   </div>
   <!-- Line Items -->
   <div class="field col-span-6">
-    <LineItemRows lineItems={blankLineItem} />
+    <LineItemRows
+        {lineItems}
+        on:addLineItem={addLineItem}
+        on:removeLineItem={removeLineItem} />
   </div>
 
   <!-- Notes -->
