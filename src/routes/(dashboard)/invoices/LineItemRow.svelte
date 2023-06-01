@@ -1,8 +1,19 @@
 <script lang="ts">
   import Trash from "$lib/components/Icon/Trash.svelte";
+  import { twoDecimals } from "$lib/utils/moneyHelpers";
+  import { dollarsToCents } from "$lib/utils/moneyHelpers.js";
   import { createEventDispatcher } from "svelte";
 
   export let lineItem: LineItem;
+  export let canDelete: boolean = false;
+
+  let unitPrice: string = twoDecimals(lineItem.amount / lineItem.quantity);
+  let amount: string;
+
+  $: {
+    amount = twoDecimals(lineItem.quantity * +unitPrice);
+    lineItem.amount = dollarsToCents(+amount);
+  }
 
   const dispatch = createEventDispatcher();
 </script>
@@ -13,7 +24,8 @@
         class="line-item"
         type="text"
         name="description"
-        id="description">
+        id="description"
+        bind:value={lineItem.description}>
   </div>
 
   <div>
@@ -23,7 +35,9 @@
         name="unitPrice"
         id="unitPrice"
         step="0.01"
-        min="0">
+        min="0"
+        bind:value={unitPrice}
+        on:blur={() => unitPrice = twoDecimals(+unitPrice)}>
   </div>
 
   <div>
@@ -32,7 +46,8 @@
         type="number"
         name="quantity"
         id="quantity"
-        min="0">
+        min="0"
+        bind:value={lineItem.quantity}>
   </div>
 
   <div>
@@ -42,15 +57,19 @@
         name="amount"
         id="amount"
         step="0.01"
-        min="0">
+        min="0"
+        bind:value={amount}
+        disabled>
   </div>
 
   <div>
-    <button
-        class="center h-10 w-10 text-pastelPurple hover:text-lavenderIndigo"
-        on:click|preventDefault={() => dispatch("removeLineItem", lineItem.id)}>
-      <Trash />
-    </button>
+    {#if canDelete}
+      <button
+          class="center h-10 w-10 text-pastelPurple hover:text-lavenderIndigo"
+          on:click|preventDefault={() => dispatch("removeLineItem", lineItem.id)}>
+        <Trash />
+      </button>
+    {/if}
   </div>
 </div>
 
@@ -71,5 +90,10 @@
   input[type="text"]:focus,
   input[type="number"]:focus {
     @apply border-solid border-lavenderIndigo outline-none;
+  }
+
+  input[type="number"]:disabled,
+  input[type="text"]:disabled {
+    @apply border-b-0 bg-transparent px-0;
   }
 </style>
