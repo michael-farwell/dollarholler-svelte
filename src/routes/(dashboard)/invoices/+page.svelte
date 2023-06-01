@@ -7,10 +7,11 @@
   import { asCurrency, sumInvoices } from "$lib/utils/moneyHelpers";
   import { onMount } from "svelte";
   import BlankState from "./BlankState.svelte";
+  import InvoiceForm from "./InvoiceForm.svelte";
   import InvoiceRow from "./InvoiceRow.svelte";
   import InvoiceRowHeader from "./InvoiceRowHeader.svelte";
 
-  let isInvoiceFormShowing: boolean = false;
+  let isInvoiceFormShowing: boolean = true;
 
   onMount(() => loadInvoices());
 </script>
@@ -57,6 +58,6 @@
 
 {#if isInvoiceFormShowing}
   <SlidePanel on:close={() => isInvoiceFormShowing = false}>
-    Hello Bro
+    <InvoiceForm />
   </SlidePanel>
 {/if}
