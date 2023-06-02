@@ -2,9 +2,11 @@
   import Button from "$lib/components/Button.svelte";
   import Trash from "$lib/components/Icon/Trash.svelte";
   import { states } from "$lib/utils/states";
+  import { onMount } from "svelte";
   import LineItemRows from "./LineItemRows.svelte";
   import { v4 as uuid } from "uuid";
   import { slide } from "svelte/transition";
+  import { clients, loadClients } from "$lib/stores/ClientStore";
 
   const blankLineItem: LineItem = {
     id: uuid(),
@@ -20,6 +22,8 @@
   const addLineItem = () => lineItems = [...lineItems, { ...blankLineItem, id: uuid() }];
   const removeLineItem = (e: CustomEvent) => lineItems = lineItems.filter(x => x.id !== e.detail);
   const updateLineItem = () => lineItems = lineItems;
+
+  onMount(() => loadClients());
 </script>
 
 <h2 class="mb-7 font-sansSerif text-3xl font-bold text-daisyBush">
@@ -35,7 +39,9 @@
         <select
             name="client"
             id="client">
-          <option value="zeal">ZEAL</option>
+          {#each $clients as client}
+            <option value={client.id}>{client.name}</option>
+          {/each}
         </select>
         <div class="text-base font-bold text-monsoon leading-[3.5rem]">
           or
