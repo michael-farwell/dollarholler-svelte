@@ -35,6 +35,7 @@
         {lineItem}
         on:updateLineItem
         on:removeLineItem
+        isRequired={index === 0}
         canDelete={index !== 0} />
   {/each}
 {/if}

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Button from "$lib/components/Button.svelte";
   import Trash from "$lib/components/Icon/Trash.svelte";
+  import { today } from "$lib/utils/dateHelpers";
   import { states } from "$lib/utils/states";
   import { onMount } from "svelte";
   import LineItemRows from "./LineItemRows.svelte";
@@ -72,11 +73,12 @@
   </div>
   <!-- Invoice ID -->
   <div class="field col-span-2">
-    <label for="id">Invoice ID</label>
+    <label for="invoiceNumber">Invoice ID</label>
     <input
         type="number"
-        name="id"
-        id="id">
+        name="invoiceNumber"
+        id="invoiceNumber"
+        required>
   </div>
 
   <!-- New Client Information -->
@@ -134,7 +136,9 @@
     <input
         type="date"
         name="due_date"
-        id="due_date">
+        id="due_date"
+        min={today}
+        required>
   </div>
   <!-- Issue Date -->
   <div class="field col-span-2 col-start-5">
@@ -142,7 +146,8 @@
     <input
         type="date"
         name="issue_date"
-        id="issue_date">
+        id="issue_date"
+        min={today}>
   </div>
   <!-- Subject -->
   <div class="field col-span-6">
@@ -195,8 +200,10 @@
         isAnimated={false}
         onClick={() => {}} />
 
-    <Button
-        label="Save"
-        onClick={() => {}} />
+    <button
+        type="submit"
+        class="button bg-lavenderIndigo text-white shadow-colored hover:shadow-coloredHover translate-y-0 hover:-translate-y-2 transition-all">
+      Save
+    </button>
   </div>
 </form>

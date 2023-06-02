@@ -6,6 +6,7 @@
 
   export let lineItem: LineItem;
   export let canDelete: boolean = false;
+  export let isRequired: boolean = false;
 
   let unitPrice: string = twoDecimals(lineItem?.amount / lineItem?.quantity);
   let amount: string;
@@ -25,7 +26,8 @@
         type="text"
         name="description"
         id="description"
-        bind:value={lineItem.description}>
+        bind:value={lineItem.description}
+        required={isRequired}>
   </div>
 
   <div>
@@ -40,7 +42,8 @@
         on:blur={() => {
           unitPrice = twoDecimals(+unitPrice)
           dispatch("updateLineItem")
-        }}>
+        }}
+        required={isRequired}>
   </div>
 
   <div>
@@ -51,7 +54,8 @@
         id="quantity"
         min="0"
         bind:value={lineItem.quantity}
-        on:blur={() => dispatch("updateLineItem")}>
+        on:blur={() => dispatch("updateLineItem")}
+        required={isRequired}>
   </div>
 
   <div>
