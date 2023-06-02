@@ -16,6 +16,7 @@
 
   const addLineItem = () => lineItems = [...lineItems, { ...blankLineItem, id: uuid() }];
   const removeLineItem = (e: CustomEvent) => lineItems = lineItems.filter(x => x.id !== e.detail);
+  const updateLineItem = () => lineItems = lineItems;
 </script>
 
 <h2 class="mb-7 font-sansSerif text-3xl font-bold text-daisyBush">
@@ -79,6 +80,7 @@
     <LineItemRows
         {lineItems}
         on:addLineItem={addLineItem}
+        on:updateLineItem={updateLineItem}
         on:removeLineItem={removeLineItem} />
   </div>
 

@@ -11,7 +11,7 @@
   let amount: string;
 
   $: {
-    amount = twoDecimals(lineItem?.quantity * +unitPrice);
+    amount = twoDecimals(lineItem?.quantity * unitPrice);
     if (lineItem) lineItem.amount = dollarsToCents(+amount);
   }
 
@@ -37,7 +37,10 @@
         step="0.01"
         min="0"
         bind:value={unitPrice}
-        on:blur={() => unitPrice = twoDecimals(+unitPrice)}>
+        on:blur={() => {
+          unitPrice = twoDecimals(+unitPrice)
+          dispatch("updateLineItem")
+        }}>
   </div>
 
   <div>
@@ -47,7 +50,8 @@
         name="quantity"
         id="quantity"
         min="0"
-        bind:value={lineItem.quantity}>
+        bind:value={lineItem.quantity}
+        on:blur={() => dispatch("updateLineItem")}>
   </div>
 
   <div>

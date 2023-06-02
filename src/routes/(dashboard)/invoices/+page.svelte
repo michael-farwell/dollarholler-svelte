@@ -11,7 +11,7 @@
   import InvoiceRow from "./InvoiceRow.svelte";
   import InvoiceRowHeader from "./InvoiceRowHeader.svelte";
 
-  let isInvoiceFormShowing: boolean = true;
+  let isInvoiceFormShowing: boolean = false;
 
   onMount(() => loadInvoices());
 </script>

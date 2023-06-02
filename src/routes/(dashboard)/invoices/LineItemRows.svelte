@@ -1,12 +1,25 @@
 <script lang="ts">
   import Button from "$lib/components/Button.svelte";
   import CircledAmount from "$lib/components/CircledAmount.svelte";
+  import { asCurrency, sumLineItems } from "$lib/utils/moneyHelpers";
   import { createEventDispatcher } from "svelte";
   import LineItemRow from "./LineItemRow.svelte";
 
   const dispatch = createEventDispatcher();
-
   export let lineItems: LineItem[] | undefined = undefined;
+
+  let subtotal: number = 0;
+  let discount: number = 0;
+  let discountedAmount: number = 0;
+  let total: number;
+
+  $: if (sumLineItems(lineItems) > 0) {
+    subtotal = sumLineItems(lineItems);
+  }
+  $: if (subtotal && discount) {
+    discountedAmount = sumLineItems(lineItems) * (discount / 100);
+  }
+  $: total = subtotal - discountedAmount;
 </script>
 
 <div class="invoice-line-item border-b-2 border-daisyBush pb-2">
@@ -20,6 +33,7 @@
   {#each lineItems as lineItem, index}
     <LineItemRow
         {lineItem}
+        on:updateLineItem
         on:removeLineItem
         canDelete={index !== 0} />
   {/each}
@@ -34,7 +48,7 @@
         onClick={() => dispatch("addLineItem")} />
   </div>
   <div class="font-bold py-5 text-right text-monsoon">Subtotal</div>
-  <div class="py-5 text-right font-mono">$250.00</div>
+  <div class="py-5 text-right font-mono">{asCurrency(subtotal)}</div>
 </div>
 
 <div class="invoice-line-item">
@@ -48,17 +62,18 @@
         name="discount"
         id="discount"
         min="0"
-        max="100">
+        max="100"
+        bind:value={discount}>
     <span class="absolute right-0 top-2 font-mono">%</span>
   </div>
-  <div class="py-5 text-right font-mono">$10.00</div>
+  <div class="py-5 text-right font-mono">{asCurrency(discountedAmount)}</div>
 </div>
 
 <div class="invoice-line-item">
   <div class="col-span-6">
     <CircledAmount
         label="Total:"
-        amount="$1,444.00" />
+        amount={asCurrency(total)} />
   </div>
 </div>
 
