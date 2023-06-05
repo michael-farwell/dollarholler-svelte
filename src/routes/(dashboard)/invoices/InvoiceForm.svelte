@@ -39,7 +39,9 @@
       <div class="flex items-end gap-x-5">
         <select
             name="client"
-            id="client">
+            id="client"
+            required="{!isNewClient}">
+          <option></option>
           {#each $clients as client}
             <option value={client.id}>{client.name}</option>
           {/each}
@@ -59,7 +61,8 @@
         <input
             type="text"
             name="new-client"
-            id="new-client">
+            id="new-client"
+            required={isNewClient}>
         <div class="text-base font-bold text-monsoon leading-[3.5rem]">
           or
         </div>
@@ -91,7 +94,8 @@
         <input
             type="email"
             name="email"
-            id="email">
+            id="email"
+            required>
       </div>
 
       <div class="field col-span-6">
