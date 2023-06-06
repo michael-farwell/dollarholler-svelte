@@ -9,16 +9,14 @@
   export let lineItems: LineItem[] | undefined = undefined;
 
   let subtotal: number = 0;
-  let discount: number = 0;
+  export let discount: number = 0;
   let discountedAmount: number = 0;
   let total: number;
 
   $: if (sumLineItems(lineItems) > 0) {
     subtotal = sumLineItems(lineItems);
   }
-  $: if (subtotal && discount) {
-    discountedAmount = sumLineItems(lineItems) * (discount / 100);
-  }
+  $: discountedAmount = sumLineItems(lineItems) * (discount / 100);
   $: total = subtotal - discountedAmount;
 </script>
 

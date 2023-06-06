@@ -10,17 +10,18 @@ interface Invoice {
   notes?: string;
   subject?: string;
   terms?: string;
+  discount?: number;
 }
 
 interface Client {
   clientStatus?: ClientStatus;
-  city: string;
+  city?: string;
   email: string;
   id: string;
   name: string;
-  state: string;
-  street: string;
-  zip: string;
+  state?: string;
+  street?: string;
+  zip?: string;
 }
 
 interface LineItem {

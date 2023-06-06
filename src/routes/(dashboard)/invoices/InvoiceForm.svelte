@@ -1,13 +1,14 @@
 <script lang="ts">
   import Button from "$lib/components/Button.svelte";
   import Trash from "$lib/components/Icon/Trash.svelte";
+  import { addClient, clients, loadClients } from "$lib/stores/ClientStore";
+  import { addInvoice } from "$lib/stores/InvoiceStore.js";
   import { today } from "$lib/utils/dateHelpers";
   import { states } from "$lib/utils/states";
   import { onMount } from "svelte";
-  import LineItemRows from "./LineItemRows.svelte";
-  import { v4 as uuid } from "uuid";
   import { slide } from "svelte/transition";
-  import { clients, loadClients } from "$lib/stores/ClientStore";
+  import { v4 as uuid } from "uuid";
+  import LineItemRows from "./LineItemRows.svelte";
 
   const blankLineItem: LineItem = {
     id: uuid(),
@@ -15,14 +16,27 @@
     quantity: 0,
     amount: 0,
   };
-  let lineItems: LineItem[] = [
-    { ...blankLineItem },
-  ];
   let isNewClient: boolean = false;
+  let invoice: Invoice = {
+    client: {} as Client,
+    lineItems: [{ ...blankLineItem }] as LineItem[],
+  } as Invoice;
+  let newClient: Partial<Client> = {} as Client;
 
-  const addLineItem = () => lineItems = [...lineItems, { ...blankLineItem, id: uuid() }];
-  const removeLineItem = (e: CustomEvent) => lineItems = lineItems.filter(x => x.id !== e.detail);
-  const updateLineItem = () => lineItems = lineItems;
+  export let closePanel: () => void = () => {};
+
+  const addLineItem = () => invoice.lineItems = [...invoice.lineItems, { ...blankLineItem, id: uuid() }];
+  const handleSubmit = () => {
+    if (isNewClient) {
+      addClient(newClient as Client);
+      invoice.client = newClient as Client;
+    }
+    addInvoice(invoice);
+    closePanel();
+  };
+  const removeLineItem = (e: CustomEvent) => invoice.lineItems = invoice.lineItems &&
+                                                                 invoice.lineItems.filter(x => x.id !== e.detail);
+  const updateLineItem = () => invoice.lineItems = invoice.lineItems;
 
   onMount(() => loadClients());
 </script>
@@ -31,7 +45,9 @@
   Add an Invoice
 </h2>
 
-<form class="grid grid-cols-6 gap-x-5">
+<form
+    class="grid grid-cols-6 gap-x-5"
+    on:submit|preventDefault={handleSubmit}>
   <!-- Client -->
   <div class="field col-span-4">
     {#if !isNewClient}
@@ -40,7 +56,12 @@
         <select
             name="client"
             id="client"
-            required="{!isNewClient}">
+            required="{!isNewClient}"
+            bind:value={invoice.client.id}
+            on:change={() => {
+          const selectedClient = $clients.find(x => x.id === invoice.client.id);
+          invoice.client.name = selectedClient ? selectedClient.name : "";
+        }}>
           <option></option>
           {#each $clients as client}
             <option value={client.id}>{client.name}</option>
@@ -53,7 +74,11 @@
             label="+ Client"
             style={"outline"}
             isAnimated={false}
-            onClick={() => isNewClient = true} />
+            onClick={() => {
+              isNewClient = true;
+              invoice.client.email = "";
+              invoice.client.name = "";
+            }} />
       </div>
     {:else}
       <label for="new-client">New Client</label>
@@ -62,7 +87,8 @@
             type="text"
             name="new-client"
             id="new-client"
-            required={isNewClient}>
+            required={isNewClient}
+            bind:value={newClient.name}>
         <div class="text-base font-bold text-monsoon leading-[3.5rem]">
           or
         </div>
@@ -70,18 +96,22 @@
             label="Existing Client"
             style={"outline"}
             isAnimated={false}
-            onClick={() => isNewClient = false} />
+            onClick={() => {
+              isNewClient = false;
+              newClient = {};
+            }} />
       </div>
     {/if}
   </div>
   <!-- Invoice ID -->
   <div class="field col-span-2">
-    <label for="invoiceNumber">Invoice ID</label>
+    <label for="invoice-number">Invoice ID</label>
     <input
         type="number"
-        name="invoiceNumber"
-        id="invoiceNumber"
-        required>
+        name="invoice-number"
+        id="invoice-number"
+        required
+        bind:value={invoice.invoiceNumber}>
   </div>
 
   <!-- New Client Information -->
@@ -95,7 +125,8 @@
             type="email"
             name="email"
             id="email"
-            required>
+            required
+            bind:value={newClient.email}>
       </div>
 
       <div class="field col-span-6">
@@ -103,7 +134,8 @@
         <input
             type="text"
             name="street"
-            id="street">
+            id="street"
+            bind:value={newClient.street}>
       </div>
 
       <div class="field col-span-2">
@@ -111,13 +143,15 @@
         <input
             type="text"
             name="city"
-            id="city">
+            id="city"
+            bind:value={newClient.city}>
       </div>
       <div class="field col-span-2">
         <label for="state">State</label>
         <select
             name="state"
-            id="state">
+            id="state"
+            bind:value={newClient.state}>
           <option></option>
           {#each states as state}
             <option value={state.value}>{state.name}</option>
@@ -129,29 +163,32 @@
         <input
             type="text"
             name="zip"
-            id="zip">
+            id="zip"
+            bind:value={newClient.zip}>
       </div>
     </div>
   {/if}
 
   <!-- Due Date -->
   <div class="field col-span-2">
-    <label for="due_date">Due Date</label>
+    <label for="due-date">Due Date</label>
     <input
         type="date"
-        name="due_date"
-        id="due_date"
+        name="due-date"
+        id="due-date"
         min={today}
-        required>
+        required
+        bind:value={invoice.dueDate}>
   </div>
   <!-- Issue Date -->
   <div class="field col-span-2 col-start-5">
-    <label for="issue_date">Issue Date</label>
+    <label for="issue-date">Issue Date</label>
     <input
         type="date"
-        name="issue_date"
-        id="issue_date"
-        min={today}>
+        name="issue-date"
+        id="issue-date"
+        min={today}
+        bind:value={invoice.issueDate}>
   </div>
   <!-- Subject -->
   <div class="field col-span-6">
@@ -159,12 +196,14 @@
     <input
         type="text"
         name="subject"
-        id="subject">
+        id="subject"
+        bind:value={invoice.subject}>
   </div>
   <!-- Line Items -->
   <div class="field col-span-6">
     <LineItemRows
-        {lineItems}
+        lineItems={invoice.lineItems}
+        discount={invoice.discount}
         on:addLineItem={addLineItem}
         on:updateLineItem={updateLineItem}
         on:removeLineItem={removeLineItem} />
@@ -175,14 +214,16 @@
     <label for="notes">Notes <span class="font-normal">(optional, displayed on invoice)</span></label>
     <textarea
         name="notes"
-        id="notes"></textarea>
+        id="notes"
+        bind:value={invoice.notes}></textarea>
   </div>
   <!-- Terms -->
   <div class="field col-span-6">
     <label for="terms">Terms <span class="font-normal">(optional, enter your terms and conditions)</span></label>
     <textarea
         name="terms"
-        id="terms"></textarea>
+        id="terms"
+        bind:value={invoice.terms}></textarea>
     <div class="text-xs text-gray-400">
       Formatting tips: <strong>*bold*</strong>, <em>_italics_</em>
     </div>
@@ -202,7 +243,7 @@
         label="Cancel"
         style={"secondary"}
         isAnimated={false}
-        onClick={() => {}} />
+        onClick={() => closePanel()} />
 
     <button
         type="submit"
