@@ -2,12 +2,13 @@
   import Button from "$lib/components/Button.svelte";
   import Trash from "$lib/components/Icon/Trash.svelte";
   import { addClient, clients, loadClients } from "$lib/stores/ClientStore";
-  import { addInvoice } from "$lib/stores/InvoiceStore.js";
+  import { addInvoice, updateInvoice } from "$lib/stores/InvoiceStore.js";
   import { today } from "$lib/utils/dateHelpers";
   import { states } from "$lib/utils/states";
   import { onMount } from "svelte";
   import { slide } from "svelte/transition";
   import { v4 as uuid } from "uuid";
+  import ConfirmDelete from "./ConfirmDelete.svelte";
   import LineItemRows from "./LineItemRows.svelte";
 
   const blankLineItem: LineItem = {
@@ -16,13 +17,14 @@
     quantity: 0,
     amount: 0,
   };
+  let isModalShowing: boolean = false;
   let isNewClient: boolean = false;
-  let invoice: Invoice = {
+  let newClient: Partial<Client> = {} as Client;
+  export let invoice: Invoice = {
     client: {} as Client,
     lineItems: [{ ...blankLineItem }] as LineItem[],
   } as Invoice;
-  let newClient: Partial<Client> = {} as Client;
-
+  export let formState: "create" | "edit" = "create";
   export let closePanel: () => void = () => {};
 
   const addLineItem = () => invoice.lineItems = [...invoice.lineItems, { ...blankLineItem, id: uuid() }];
@@ -31,7 +33,11 @@
       addClient(newClient as Client);
       invoice.client = newClient as Client;
     }
-    addInvoice(invoice);
+    if (formState === "create") {
+      addInvoice(invoice);
+    } else {
+      updateInvoice(invoice);
+    }
     closePanel();
   };
   const removeLineItem = (e: CustomEvent) => invoice.lineItems = invoice.lineItems &&
@@ -42,7 +48,7 @@
 </script>
 
 <h2 class="mb-7 font-sansSerif text-3xl font-bold text-daisyBush">
-  Add an Invoice
+  {formState === "create" ? "Create" : "Edit"} an Invoice
 </h2>
 
 <form
@@ -228,15 +234,17 @@
       Formatting tips: <strong>*bold*</strong>, <em>_italics_</em>
     </div>
   </div>
-  <!-- Buttons -->
+  <!-- * Buttons -->
   <div class="field col-span-2">
-    <!-- Only if Editing -->
-    <Button
-        label="Delete"
-        style={"textOnlyDestructive"}
-        isAnimated={false}
-        onClick={() => {}}
-        iconLeft={Trash} />
+    <!-- ? Only if Editing -->
+    {#if formState === "edit"}
+      <Button
+          label="Delete"
+          style={"textOnlyDestructive"}
+          isAnimated={false}
+          onClick={() => isModalShowing = true}
+          iconLeft={Trash} />
+    {/if}
   </div>
   <div class="field col-span-4 flex justify-end gap-x-5">
     <Button
@@ -252,3 +260,11 @@
     </button>
   </div>
 </form>
+
+<ConfirmDelete
+    {invoice}
+    {isModalShowing}
+    on:close={() => {
+      isModalShowing = false
+      closePanel()
+    }} />

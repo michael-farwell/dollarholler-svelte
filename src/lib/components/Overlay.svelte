@@ -1,3 +1,7 @@
+<script lang="ts">
+  export let className: string = "z-overlay";
+</script>
+
 <svelte:head>
   <style lang="postcss">
     body {
@@ -6,5 +10,5 @@
   </style>
 </svelte:head>
 
-<div class="fixed inset-0 bg-blueGem opacity-60 z-overlay"></div>
+<div class="fixed inset-0 bg-blueGem opacity-60 {className}"></div>
 

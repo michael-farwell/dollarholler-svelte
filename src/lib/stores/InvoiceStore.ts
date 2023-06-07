@@ -16,3 +16,15 @@ export const deleteInvoice = (invoiceToDelete: Invoice) => {
   invoices.update((prev: Invoice[]) => prev.filter(x => x.id !== invoiceToDelete.id));
   return invoiceToDelete;
 };
+
+export const updateInvoice = (invoiceToUpdate: Invoice) => {
+  invoices.update((prev: Invoice[]) => {
+    prev.map(x => {
+      if (x.id === invoiceToUpdate.id) {
+        return invoiceToUpdate;
+      }
+      return x;
+    });
+    return prev;
+  });
+};
