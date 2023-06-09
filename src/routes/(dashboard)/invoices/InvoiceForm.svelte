@@ -10,6 +10,7 @@
   import { v4 as uuid } from "uuid";
   import ConfirmDelete from "./ConfirmDelete.svelte";
   import LineItemRows from "./LineItemRows.svelte";
+  import { snackbar } from "$lib/stores/SnackbarStore";
 
   const blankLineItem = {
     id: uuid(),
@@ -44,8 +45,16 @@
     }
     if (formState === "create") {
       addInvoice(invoice);
+      snackbar.send({
+        message: "Your invoice was successfully created.",
+        type: "success",
+      });
     } else {
       updateInvoice(invoice);
+      snackbar.send({
+        message: "Your invoice was successfully updated.",
+        type: "success",
+      });
     }
     closePanel();
   };
