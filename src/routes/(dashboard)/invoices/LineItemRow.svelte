@@ -18,21 +18,33 @@
   let dispatch = createEventDispatcher();
 </script>
 
-<div class="invoice-line-item border-b-2 border-fog py-2">
-  <div>
+<div class="invoice-line-item border-b-2 border-fog py-4 sm:py-2">
+  <div class="description">
+    <label
+        for="description"
+        class="line-item-label">
+      Description
+    </label>
     <input
         class="line-item"
         type="text"
+        id="description"
         name="description"
         bind:value={lineItem.description}
         required={isRequired} />
   </div>
 
-  <div>
+  <div class="unitPrice">
+    <label
+        for="unit-price"
+        class="line-item-label text-right">
+      Unit Price
+    </label>
     <input
         class="line-item text-right"
         type="number"
-        name="unitPrice"
+        name="unit-price"
+        id="unit-price"
         step="0.01"
         min="0"
         bind:value={unitPrice}
@@ -43,11 +55,17 @@
         required={isRequired} />
   </div>
 
-  <div>
+  <div class="qty">
+    <label
+        for="quantity"
+        class="line-item-label text-center">
+      Qty
+    </label>
     <input
         class="line-item text-center"
         type="number"
         name="quantity"
+        id="quantity"
         min="0"
         bind:value={lineItem.quantity}
         on:blur={() => {
@@ -56,18 +74,24 @@
         required={isRequired} />
   </div>
 
-  <div>
+  <div class="amount">
+    <label
+        for="amount"
+        class="line-item-label text-right">
+      Amount
+    </label>
     <input
         class="line-item text-right"
         type="number"
         name="amount"
+        id="amount"
         step="0.01"
         min="0"
         bind:value={amount}
         disabled />
   </div>
 
-  <div>
+  <div class="trash">
     {#if canDelete}
       <button
           on:click|preventDefault={() => dispatch('removeLineItem', lineItem.id)}
@@ -100,5 +124,9 @@
   input[type='number']:disabled,
   input[type='text']:disabled {
     @apply border-b-0 bg-transparent px-0;
+  }
+
+  .line-item-label {
+    @apply block sm:hidden;
   }
 </style>
