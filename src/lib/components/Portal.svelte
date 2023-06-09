@@ -22,5 +22,5 @@
 <div
     hidden
     use:portal>
-  <slot></slot>
+  <slot/>
 </div>

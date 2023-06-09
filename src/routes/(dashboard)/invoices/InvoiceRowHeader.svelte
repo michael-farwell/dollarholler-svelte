@@ -1,8 +1,7 @@
 <script lang="ts">
-  export let className: string = "";
+  export let className = "";
 </script>
 
-<!--  Header -->
 <div class="table-header invoice-table hidden lg:grid {className}">
   <h3>Status</h3>
   <h3>Due Date</h3>

@@ -1,22 +1,21 @@
 <script lang="ts">
   import Trash from "$lib/components/Icon/Trash.svelte";
-  import { twoDecimals } from "$lib/utils/moneyHelpers";
-  import { dollarsToCents } from "$lib/utils/moneyHelpers.js";
+  import { centsToDollars, dollarsToCents, twoDecimals } from "$lib/utils/moneyHelpers";
   import { createEventDispatcher } from "svelte";
 
   export let lineItem: LineItem;
   export let canDelete: boolean = false;
   export let isRequired: boolean = false;
 
-  let unitPrice: string = twoDecimals(lineItem?.amount / lineItem?.quantity);
+  let unitPrice: string = centsToDollars(lineItem.amount / lineItem.quantity);
   let amount: string;
 
   $: {
-    amount = twoDecimals(lineItem?.quantity * unitPrice);
-    if (lineItem) lineItem.amount = dollarsToCents(+amount);
+    amount = twoDecimals(lineItem.quantity * Number(unitPrice));
+    lineItem.amount = dollarsToCents(Number(amount));
   }
 
-  const dispatch = createEventDispatcher();
+  let dispatch = createEventDispatcher();
 </script>
 
 <div class="invoice-line-item border-b-2 border-fog py-2">
@@ -25,9 +24,8 @@
         class="line-item"
         type="text"
         name="description"
-        id="description"
         bind:value={lineItem.description}
-        required={isRequired}>
+        required={isRequired} />
   </div>
 
   <div>
@@ -35,15 +33,14 @@
         class="line-item text-right"
         type="number"
         name="unitPrice"
-        id="unitPrice"
         step="0.01"
         min="0"
         bind:value={unitPrice}
         on:blur={() => {
-          unitPrice = twoDecimals(+unitPrice)
-          dispatch("updateLineItem")
-        }}
-        required={isRequired}>
+        unitPrice = twoDecimals(Number(unitPrice));
+        dispatch('updateLineItem');
+      }}
+        required={isRequired} />
   </div>
 
   <div>
@@ -51,11 +48,12 @@
         class="line-item text-center"
         type="number"
         name="quantity"
-        id="quantity"
         min="0"
         bind:value={lineItem.quantity}
-        on:blur={() => dispatch("updateLineItem")}
-        required={isRequired}>
+        on:blur={() => {
+        dispatch('updateLineItem');
+      }}
+        required={isRequired} />
   </div>
 
   <div>
@@ -63,18 +61,17 @@
         class="line-item text-right"
         type="number"
         name="amount"
-        id="amount"
         step="0.01"
         min="0"
         bind:value={amount}
-        disabled>
+        disabled />
   </div>
 
   <div>
     {#if canDelete}
       <button
-          class="center h-10 w-10 text-pastelPurple hover:text-lavenderIndigo"
-          on:click|preventDefault={() => dispatch("removeLineItem", lineItem.id)}>
+          on:click|preventDefault={() => dispatch('removeLineItem', lineItem.id)}
+          class="center h-10 w-10 text-pastelPurple hover:text-lavenderIndigo">
         <Trash />
       </button>
     {/if}
@@ -82,26 +79,26 @@
 </div>
 
 <style lang="postcss">
-  input[type="text"],
-  input[type="number"] {
+  input[type='text'],
+  input[type='number'] {
     @apply h-10 w-full border-b-2 border-dashed border-stone-300;
   }
 
-  input[type="text"] {
+  input[type='text'] {
     @apply font-sansSerif text-xl font-bold;
   }
 
-  input[type="number"] {
+  input[type='number'] {
     @apply font-mono text-base;
   }
 
-  input[type="text"]:focus,
-  input[type="number"]:focus {
+  input[type='text']:focus,
+  input[type='number']:focus {
     @apply border-solid border-lavenderIndigo outline-none;
   }
 
-  input[type="number"]:disabled,
-  input[type="text"]:disabled {
+  input[type='number']:disabled,
+  input[type='text']:disabled {
     @apply border-b-0 bg-transparent px-0;
   }
 </style>

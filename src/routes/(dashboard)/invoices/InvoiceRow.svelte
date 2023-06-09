@@ -8,17 +8,28 @@
   import SlidePanel from "$lib/components/SlidePanel.svelte";
   import Tag from "$lib/components/Tag.svelte";
   import { convertDate, isLate } from "$lib/utils/dateHelpers";
-  import { asCurrency, sumLineItems } from "$lib/utils/moneyHelpers";
+  import { centsToDollars, invoiceTotal } from "$lib/utils/moneyHelpers";
   import ConfirmDelete from "./ConfirmDelete.svelte";
   import InvoiceForm from "./InvoiceForm.svelte";
 
   export let invoice: Invoice;
-  let isAdditionalMenuShowing: boolean = false;
-  let isInvoiceFormShowing: boolean = false;
-  let isModalShowing: boolean = false;
-  let isOptionsDisabled: boolean = false;
+  let isAdditionalMenuShowing = false;
+  let isOptionsDisabled = false;
+  let isModalShowing = false;
+  let isInvoiceFormShowing = false;
 
-  const getInvoiceLabel = (): string => {
+  const handleDelete = () => {
+    isModalShowing = true;
+    isAdditionalMenuShowing = false;
+  };
+  const handleEdit = () => {
+    isInvoiceFormShowing = true;
+    isAdditionalMenuShowing = false;
+  };
+  const handleSendInvoice = () => {
+    console.log("sending");
+  };
+  const getInvoiceLabel = () => {
     if (invoice.invoiceStatus === "draft") {
       return "draft";
     } else if (invoice.invoiceStatus === "sent" && !isLate(invoice.dueDate)) {
@@ -32,34 +43,21 @@
       return "paid";
     }
   };
-  const handleDelete = () => {
-    isModalShowing = true;
-    isAdditionalMenuShowing = false;
-  };
-  const handleEdit = () => {
-    isInvoiceFormShowing = true;
-    isAdditionalMenuShowing = false;
-  };
-  const handleSend = () => {
-    console.log("Sending");
-  };
 </script>
 
-<div class="invoice-table invoice-row items-center bg-white py-3 lg:py-6 rounded-lg shadow-tableRow">
+<div class="invoice-table invoice-row items-center rounded-lg bg-white py-3 shadow-tableRow lg:py-6">
   <div class="status">
     <Tag
         className="ml-auto lg:ml-0"
         label={getInvoiceLabel()} />
   </div>
-  <div class="text-sm lg:text-lg dueDate">
-    {convertDate(invoice.dueDate)}
-  </div>
-  <div class="text-sm lg:text-lg invoiceNumber">{invoice.invoiceNumber}</div>
-  <div class="text-base lg:text-xl font-bold clientName whitespace-nowrap truncate">
+  <div class="dueDate text-sm lg:text-lg">{convertDate(invoice.dueDate)}</div>
+  <div class="invoiceNumber text-sm lg:text-lg">{invoice.invoiceNumber}</div>
+  <div class="clientName truncate whitespace-nowrap text-base font-bold lg:text-xl">
     {invoice.client.name}
   </div>
-  <div class="text-sm lg:text-lg font-mono font-bold amount text-right">
-    {asCurrency(sumLineItems(invoice.lineItems))}
+  <div class="amount text-right font-mono text-sm font-bold lg:text-lg">
+    ${centsToDollars(invoiceTotal(invoice.lineItems, invoice.discount))}
   </div>
   <div class="center viewButton hidden text-sm lg:flex lg:text-lg">
     <a
@@ -68,33 +66,35 @@
       <View />
     </a>
   </div>
-  <div class="center moreButton hidden text-sm lg:flex lg:text-lg relative">
+  <div class="center moreButton relative hidden text-sm lg:flex lg:text-lg">
     <button
-        class="text-pastelPurple hover:text-daisyBush"
+        class=" text-pastelPurple hover:text-daisyBush"
         on:click={() => isAdditionalMenuShowing = !isAdditionalMenuShowing}>
       <ThreeDots />
-    </button>
+    </button
+    >
     {#if isAdditionalMenuShowing}
       <AdditionalOptions
           options={[
-          {label: "Edit", icon: Edit, onClick: handleEdit, disabled: isOptionsDisabled},
-          {label: "Delete", icon: Trash, onClick: handleDelete, disabled: false},
-          {label: "Send", icon: Send, onClick: handleSend, disabled: isOptionsDisabled},
-      ]} />
+          { label: 'Edit', icon: Edit, onClick: handleEdit, disabled: isOptionsDisabled },
+          { label: 'Delete', icon: Trash, onClick: handleDelete, disabled: false },
+          { label: 'Send', icon: Send, onClick: handleSendInvoice, disabled: isOptionsDisabled }
+        ]}
+      />
     {/if}
   </div>
 </div>
 
 <ConfirmDelete
-    on:close={() => isModalShowing = false}
+    {invoice}
     {isModalShowing}
-    {invoice} />
+    on:close={() => (isModalShowing = false)} />
 
 {#if isInvoiceFormShowing}
-  <SlidePanel on:close={() => isInvoiceFormShowing = false}>
+  <SlidePanel on:closePanel={() => isInvoiceFormShowing = false}>
     <InvoiceForm
-        formState="edit"
         {invoice}
+        formState="edit"
         closePanel={() => isInvoiceFormShowing = false} />
   </SlidePanel>
 {/if}
@@ -102,14 +102,14 @@
 <style lang="postcss">
   .invoice-row {
     grid-template-areas:
-        "invoiceNumber invoiceNumber"
-        "clientName amount"
-        "dueDate status";
+      'invoiceNumber invoiceNumber'
+      'clientName amount'
+      'dueDate status';
   }
 
   @media (min-width: 1024px) {
     .invoice-row {
-      grid-template-areas: "status dueDate invoiceNumber clientName amount viewButton moreButton";
+      grid-template-areas: 'status dueDate invoiceNumber clientName amount viewButton moreButton';
     }
   }
 

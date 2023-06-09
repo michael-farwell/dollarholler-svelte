@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { SvelteComponent } from "svelte";
+  import type { SvelteComponent } from "svelte";
 
   export let options: {
     label: string;
-    icon?: new (...args: any) => SvelteComponent;
+    icon?: new (...args: any[]) => SvelteComponent;
     disabled: boolean;
     onClick: () => void;
   }[];
@@ -28,10 +28,10 @@
 
 <style lang="postcss">
   li {
-    @apply border-b-2 border-whisper
+    @apply border-b-2 border-whisper;
   }
 
   li:last-child {
-    @apply border-b-0
+    @apply border-b-0;
   }
 </style>

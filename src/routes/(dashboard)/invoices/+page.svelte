@@ -4,7 +4,7 @@
   import Search from "$lib/components/Search.svelte";
   import SlidePanel from "$lib/components/SlidePanel.svelte";
   import { invoices, loadInvoices } from "$lib/stores/InvoiceStore";
-  import { asCurrency, sumInvoices } from "$lib/utils/moneyHelpers";
+  import { centsToDollars, sumInvoices } from "$lib/utils/moneyHelpers";
   import { onMount } from "svelte";
   import BlankState from "./BlankState.svelte";
   import InvoiceForm from "./InvoiceForm.svelte";
@@ -20,15 +20,15 @@
   <title>Invoices | The Dollar Holler</title>
 </svelte:head>
 
-<div class="flex flex-col-reverse md:flex-row justify-between items-start md:items-center gap-y-6 md:gap-y-4 mb-7 lg:mb-16">
-  <!--  Search Field -->
+<div class="md:gap-7-4 mb-7 flex flex-col-reverse items-start justify-between gap-y-6 md:flex-row md:items-center lg:mb-16">
+  <!-- *Search Field -->
   {#if $invoices.length > 0}
     <Search />
   {:else}
     <div></div>
   {/if}
 
-  <!--  New Invoice Button -->
+  <!-- *New Invoice Button -->
   <div>
     <Button
         label="+ Invoice"
@@ -36,12 +36,12 @@
   </div>
 </div>
 
-<!-- List of Invoices -->
+<!-- *List of Invoices -->
 <div>
-  <!--  Invoices -->
+  <!-- *Invoices -->
   {#if $invoices === null}
-    Loading..
-  {:else if $invoices.length === 0}
+    Loading...
+  {:else if $invoices.length <= 0}
     <BlankState />
   {:else}
     <InvoiceRowHeader className="text-daisyBush" />
@@ -52,12 +52,14 @@
     </div>
     <CircledAmount
         label="Total"
-        amount={asCurrency(sumInvoices($invoices))} />
+        amount={`$${centsToDollars(sumInvoices($invoices))}`} />
   {/if}
 </div>
 
+<!-- *Slide Panel -->
 {#if isInvoiceFormShowing}
-  <SlidePanel on:close={() => isInvoiceFormShowing = false}>
+  <SlidePanel
+      on:closePanel={() => isInvoiceFormShowing = false}>
     <InvoiceForm closePanel={() => isInvoiceFormShowing = false} />
   </SlidePanel>
 {/if}

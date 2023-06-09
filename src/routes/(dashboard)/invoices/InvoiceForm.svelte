@@ -2,7 +2,7 @@
   import Button from "$lib/components/Button.svelte";
   import Trash from "$lib/components/Icon/Trash.svelte";
   import { addClient, clients, loadClients } from "$lib/stores/ClientStore";
-  import { addInvoice, updateInvoice } from "$lib/stores/InvoiceStore.js";
+  import { addInvoice, updateInvoice } from "$lib/stores/InvoiceStore";
   import { today } from "$lib/utils/dateHelpers";
   import { states } from "$lib/utils/states";
   import { onMount } from "svelte";
@@ -11,23 +11,32 @@
   import ConfirmDelete from "./ConfirmDelete.svelte";
   import LineItemRows from "./LineItemRows.svelte";
 
-  const blankLineItem: LineItem = {
+  const blankLineItem = {
     id: uuid(),
     description: "",
     quantity: 0,
     amount: 0,
   };
-  let isModalShowing: boolean = false;
+
   let isNewClient: boolean = false;
-  let newClient: Partial<Client> = {} as Client;
   export let invoice: Invoice = {
     client: {} as Client,
     lineItems: [{ ...blankLineItem }] as LineItem[],
   } as Invoice;
+  let newClient: Partial<Client> = {};
+
   export let formState: "create" | "edit" = "create";
+
   export let closePanel: () => void = () => {};
 
-  const addLineItem = () => invoice.lineItems = [...invoice.lineItems, { ...blankLineItem, id: uuid() }];
+  let isModalShowing = false;
+
+  const initialDiscount = invoice.discount || 0;
+
+  const addLineItem = () => invoice.lineItems = [...(invoice.lineItems as []), { ...blankLineItem, id: uuid() }];
+  const removeLineItem = (event: CustomEvent) => invoice.lineItems = invoice?.lineItems && invoice.lineItems.filter(
+      (item) => item.id !== event.detail);
+  const updateLineItem = () => invoice.lineItems = invoice.lineItems;
   const handleSubmit = () => {
     if (isNewClient) {
       addClient(newClient as Client);
@@ -40,9 +49,7 @@
     }
     closePanel();
   };
-  const removeLineItem = (e: CustomEvent) => invoice.lineItems = invoice.lineItems &&
-                                                                 invoice.lineItems.filter(x => x.id !== e.detail);
-  const updateLineItem = () => invoice.lineItems = invoice.lineItems;
+  const updateDiscount = (event: CustomEvent) => invoice.discount = event.detail.discount;
 
   onMount(() => loadClients());
 </script>
@@ -54,7 +61,7 @@
 <form
     class="grid grid-cols-6 gap-x-5"
     on:submit|preventDefault={handleSubmit}>
-  <!-- Client -->
+  <!-- *Client -->
   <div class="field col-span-4">
     {#if !isNewClient}
       <label for="client">Client</label>
@@ -62,68 +69,66 @@
         <select
             name="client"
             id="client"
-            required="{!isNewClient}"
+            required={!isNewClient}
             bind:value={invoice.client.id}
             on:change={() => {
-          const selectedClient = $clients.find(x => x.id === invoice.client.id);
-          invoice.client.name = selectedClient ? selectedClient.name : "";
-        }}>
+            const selectedClient = $clients.find((client) => client.id === invoice.client.id);
+            invoice.client.name = selectedClient?.name !== undefined ? selectedClient.name : '';
+          }}
+        >
           <option></option>
           {#each $clients as client}
             <option value={client.id}>{client.name}</option>
           {/each}
         </select>
-        <div class="text-base font-bold text-monsoon leading-[3.5rem]">
-          or
-        </div>
+        <div class="text-base font-bold leading-[3.5rem] text-monsoon">or</div>
         <Button
             label="+ Client"
-            style={"outline"}
-            isAnimated={false}
             onClick={() => {
-              isNewClient = true;
-              invoice.client.email = "";
-              invoice.client.name = "";
-            }} />
+            isNewClient = true;
+            invoice.client.name = "";
+            invoice.client.email = "";
+          }}
+            style={"outline"}
+            isAnimated={false} />
       </div>
     {:else}
       <label for="new-client">New Client</label>
       <div class="flex items-end gap-x-5">
         <input
             type="text"
-            name="new-client"
             id="new-client"
+            name="new-client"
             required={isNewClient}
-            bind:value={newClient.name}>
-        <div class="text-base font-bold text-monsoon leading-[3.5rem]">
-          or
-        </div>
+            bind:value={newClient.name} />
+        <div class="text-base font-bold leading-[3.5rem] text-monsoon">or</div>
         <Button
             label="Existing Client"
-            style={"outline"}
-            isAnimated={false}
             onClick={() => {
-              isNewClient = false;
-              newClient = {};
-            }} />
+            isNewClient = false;
+            newClient = {};
+          }}
+            style={"outline"}
+            isAnimated={false} />
       </div>
     {/if}
   </div>
-  <!-- Invoice ID -->
+
+  <!-- *Invoice ID -->
   <div class="field col-span-2">
     <label for="invoice-number">Invoice ID</label>
     <input
         type="number"
-        name="invoice-number"
         id="invoice-number"
+        name="invoice-number"
         required
-        bind:value={invoice.invoiceNumber}>
+        bind:value={invoice.invoiceNumber} />
   </div>
 
-  <!-- New Client Information -->
+  <!-- *New Client -->
   {#if isNewClient}
     <div
-        class="field grid col-span-6 gap-x-5"
+        class="field col-span-6 grid gap-x-5"
         transition:slide>
       <div class="field col-span-6">
         <label for="email">Client's Email</label>
@@ -131,8 +136,9 @@
             type="email"
             name="email"
             id="email"
-            required
-            bind:value={newClient.email}>
+            required={isNewClient}
+            bind:value={newClient.email}
+        />
       </div>
 
       <div class="field col-span-6">
@@ -141,7 +147,7 @@
             type="text"
             name="street"
             id="street"
-            bind:value={newClient.street}>
+            bind:value={newClient.street} />
       </div>
 
       <div class="field col-span-2">
@@ -150,8 +156,9 @@
             type="text"
             name="city"
             id="city"
-            bind:value={newClient.city}>
+            bind:value={newClient.city} />
       </div>
+
       <div class="field col-span-2">
         <label for="state">State</label>
         <select
@@ -164,29 +171,31 @@
           {/each}
         </select>
       </div>
+
       <div class="field col-span-2">
-        <label for="zip">Zip Code</label>
+        <label for="zip">Zip</label>
         <input
             type="text"
             name="zip"
             id="zip"
-            bind:value={newClient.zip}>
+            bind:value={newClient.zip} />
       </div>
     </div>
   {/if}
 
-  <!-- Due Date -->
+  <!-- *Due Date -->
   <div class="field col-span-2">
     <label for="due-date">Due Date</label>
     <input
         type="date"
-        name="due-date"
         id="due-date"
+        name="due-date"
         min={today}
         required
-        bind:value={invoice.dueDate}>
+        bind:value={invoice.dueDate} />
   </div>
-  <!-- Issue Date -->
+
+  <!-- *Issue Date -->
   <div class="field col-span-2 col-start-5">
     <label for="issue-date">Issue Date</label>
     <input
@@ -194,28 +203,32 @@
         name="issue-date"
         id="issue-date"
         min={today}
-        bind:value={invoice.issueDate}>
+        bind:value={invoice.issueDate} />
   </div>
-  <!-- Subject -->
+
+  <!-- *Subject -->
   <div class="field col-span-6">
     <label for="subject">Subject</label>
     <input
         type="text"
         name="subject"
         id="subject"
-        bind:value={invoice.subject}>
-  </div>
-  <!-- Line Items -->
-  <div class="field col-span-6">
-    <LineItemRows
-        lineItems={invoice.lineItems}
-        discount={invoice.discount}
-        on:addLineItem={addLineItem}
-        on:updateLineItem={updateLineItem}
-        on:removeLineItem={removeLineItem} />
+        bind:value={invoice.subject} />
   </div>
 
-  <!-- Notes -->
+  <!-- *Line Items -->
+  <div class="field col-span-6">
+    <LineItemRows
+        discount={invoice.discount}
+        lineItems={invoice.lineItems}
+        on:addLineItem={addLineItem}
+        on:removeLineItem={removeLineItem}
+        on:updateLineItem={updateLineItem}
+        on:updateDiscount={updateDiscount}
+    />
+  </div>
+
+  <!-- *Notes -->
   <div class="field col-span-6">
     <label for="notes">Notes <span class="font-normal">(optional, displayed on invoice)</span></label>
     <textarea
@@ -223,7 +236,8 @@
         id="notes"
         bind:value={invoice.notes}></textarea>
   </div>
-  <!-- Terms -->
+
+  <!-- *Terms -->
   <div class="field col-span-6">
     <label for="terms">Terms <span class="font-normal">(optional, enter your terms and conditions)</span></label>
     <textarea
@@ -231,16 +245,17 @@
         id="terms"
         bind:value={invoice.terms}></textarea>
     <div class="text-xs text-gray-400">
-      Formatting tips: <strong>*bold*</strong>, <em>_italics_</em>
+      Formatting tips: <strong>*bold*</strong>, <em>_italics_</em>.
     </div>
   </div>
-  <!-- * Buttons -->
+
+  <!-- *Buttons -->
   <div class="field col-span-2">
-    <!-- ? Only if Editing -->
-    {#if formState === "edit"}
+    <!-- ?Only be visible if editing -->
+    {#if formState === 'edit'}
       <Button
-          label="Delete"
           style={"textOnlyDestructive"}
+          label="Delete"
           isAnimated={false}
           onClick={() => isModalShowing = true}
           iconLeft={Trash} />
@@ -252,10 +267,9 @@
         style={"secondary"}
         isAnimated={false}
         onClick={() => closePanel()} />
-
     <button
-        type="submit"
-        class="button bg-lavenderIndigo text-white shadow-colored hover:shadow-coloredHover translate-y-0 hover:-translate-y-2 transition-all">
+        class="button translate-y-0 bg-lavenderIndigo text-white shadow-colored transition-all hover:-translate-y-2 hover:shadow-coloredHover"
+        type="submit">
       Save
     </button>
   </div>
@@ -265,6 +279,6 @@
     {invoice}
     {isModalShowing}
     on:close={() => {
-      isModalShowing = false
-      closePanel()
-    }} />
+    isModalShowing = false;
+    closePanel();
+  }} />

@@ -1,31 +1,31 @@
 <script lang="ts">
-  import Cancel from "$lib/components/Icon/Cancel.svelte";
-  import Overlay from "$lib/components/Overlay.svelte";
   import Portal from "$lib/components/Portal.svelte";
   import { createEventDispatcher } from "svelte";
-
-  const dispatch = createEventDispatcher();
+  import Cancel from "./Icon/Cancel.svelte";
+  import Overlay from "./Overlay.svelte";
 
   export let isVisible: boolean = false;
+  const dispatch = createEventDispatcher();
 </script>
 
 <svelte:window
     on:keydown={(event) => {
-  if(event.key === "Escape") dispatch("close")
-}} />
+    if (event.key === 'Escape') {
+      dispatch('close');
+    }
+  }}
+/>
 
 {#if isVisible}
   <Portal>
-    <Overlay className="z-modalOverlay" />
-
-    <div class="fixed inset-0 z-modal center">
-      <div class="relative max-w-[450px] min-h-[230px] w-full rounded-lg bg-white px-10 py-7">
+    <Overlay className="!z-modalOverlay" />
+    <div class="center fixed inset-0 z-modal">
+      <div class="relative min-h-[230px] w-full max-w-[450px] rounded-lg bg-white px-10 py-7">
         <button
-            class="right-4 top-4 absolute text-pastelPurple hover:text-daisyBush"
-            on:click={() => dispatch("close")}>
+            on:click={() => dispatch('close')}
+            class="absolute right-4 top-4 text-pastelPurple hover:text-daisyBush">
           <Cancel />
         </button>
-
         <slot />
       </div>
     </div>
